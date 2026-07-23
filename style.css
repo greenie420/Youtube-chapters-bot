@@ -22,6 +22,8 @@
     --text: #1a1c22;
     --muted: #666f80;
     --rail: #dcdad2;
+    --amber: #eba925;
+    --teal: #13cebc;
   }
 }
 
@@ -41,6 +43,8 @@ html[data-theme="light"] {
   --text: #1a1c22;
   --muted: #666f80;
   --rail: #dcdad2;
+  --amber: #eba925;
+  --teal: #13cebc;
 }
 
 * { box-sizing: border-box; }
