@@ -1,0 +1,11 @@
+{
+  "channels": [
+    {
+      "id": "UC_x5XG1OV2P6uZZ5FSM9Ttw",
+      "name": "Google for Developers",
+      "enabled": true,
+      "comment": false,
+      "max_videos": 3
+    }
+  ]
+}

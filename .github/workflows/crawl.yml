@@ -1,0 +1,39 @@
+name: Crawl YouTube channels
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # every 6 hours -- change to taste (see README)
+  workflow_dispatch: {}       # adds a "Run workflow" button under the Actions tab
+
+permissions:
+  contents: write            # lets the job push the generated JSON back to the repo
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Run crawler
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: python backend/main.py
+
+      - name: Commit and push new chapters
+        run: |
+          git config user.name "chapter-bot"
+          git config user.email "chapter-bot@users.noreply.github.com"
+          git add channels/
+          git diff --cached --quiet || git commit -m "Update chapters $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push

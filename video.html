@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video — Chapters</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="wordmark" href="index.html"><span class="bracket">[</span> CHAPTERS <span class="bracket">]</span></a>
+    <input id="search" type="search" placeholder="Search titles, channels, chapter topics… (press Enter)">
+    <button id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <a class="back-link" id="back-link" href="index.html">← Back</a>
+  <div class="video-layout" id="content">Loading…</div>
+</main>
+
+<script src="app.js"></script>
+<script>
+  Archive.initHeader();
+  const params = new URLSearchParams(location.search);
+  const channelId = params.get("c");
+  const videoId = params.get("v");
+
+  function clock(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    const mm = h ? String(m).padStart(2, "0") : m;
+    return h ? `${h}:${mm}:${String(s).padStart(2, "0")}` : `${mm}:${String(s).padStart(2, "0")}`;
+  }
+
+  Archive.fetchVideo(channelId, videoId).then((v) => {
+    document.getElementById("back-link").href = `channel.html?id=${encodeURIComponent(channelId)}`;
+    document.getElementById("back-link").textContent = `← ${v.channelName}`;
+    document.title = `${v.title} — Chapters`;
+
+    const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    const chaptersHTML = v.chapters.map((c) => `
+      <li><a href="${watchUrl}&t=${c.seconds}s" target="_blank" rel="noopener">
+        <span class="t">${c.time}</span><span class="title">${Archive.escapeHTML(c.title)}</span>
+      </a></li>`).join("");
+
+    const commentHTML = v.comment && v.comment.posted
+      ? `<a class="btn" href="${v.comment.url}" target="_blank" rel="noopener">View posted comment</a>`
+      : "";
+
+    document.getElementById("content").innerHTML = `
+      <div class="player">
+        <iframe src="https://www.youtube.com/embed/${videoId}" title="${Archive.escapeHTML(v.title)}"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+        <h1 class="video-title">${Archive.escapeHTML(v.title)}</h1>
+        <p class="video-meta">
+          ${Archive.escapeHTML(v.channelName)} · published ${new Date(v.published).toLocaleDateString()}
+          · duration ${clock(v.durationSeconds)} · transcript: ${v.transcriptSource} (${v.transcriptLanguage})
+        </p>
+        <div class="btn-row">
+          <a class="btn" href="${watchUrl}" target="_blank" rel="noopener">Watch on YouTube</a>
+          ${commentHTML}
+        </div>
+      </div>
+      <div>
+        <h2 class="section-title">Chapters</h2>
+        <ul class="timeline">${chaptersHTML}</ul>
+      </div>`;
+  }).catch((e) => {
+    document.getElementById("content").innerHTML = `<p class="empty-state">Could not load this video: ${e.message}</p>`;
+  });
+</script>
+</body>
+</html>

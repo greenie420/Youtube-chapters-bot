@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapters — AI-generated YouTube chapter archive</title>
+<meta name="description" content="A public, searchable archive of AI-generated chapter timestamps for YouTube videos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="wordmark" href="index.html"><span class="bracket">[</span> CHAPTERS <span class="bracket">]</span></a>
+    <input id="search" type="search" placeholder="Search titles, channels, chapter topics… (press Enter)">
+    <button id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <p class="eyebrow">Public chapter archive</p>
+    <h1 id="hero-title">An AI reads the transcript. You get chapters you can actually skip to.</h1>
+    <div class="stat-rail" id="stats"></div>
+  </section>
+
+  <section>
+    <h2 class="section-title" id="results-title">Recently added</h2>
+    <div class="grid" id="video-grid"></div>
+    <p class="empty-state" id="empty" hidden></p>
+  </section>
+
+  <section id="channels-section">
+    <h2 class="section-title">Channels</h2>
+    <div id="channel-pills"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Every chapter set is generated automatically and traceable to its source video.
+    Data lives in this repo's <a href="channels/index.json">/channels</a> folder as plain JSON — fork it, query it, build on it.
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+  Archive.initHeader();
+
+  const params = new URLSearchParams(location.search);
+  const q = params.get("q");
+
+  Archive.fetchIndex().then((data) => {
+    Archive.renderStats(document.getElementById("stats"), data.stats);
+
+    let videos = data.videos || [];
+    if (q) {
+      document.getElementById("results-title").textContent = `Results for "${q}"`;
+      videos = videos.filter((v) => Archive.matchesQuery(v, q));
+    } else {
+      videos = videos.slice(0, 12);
+    }
+
+    const grid = document.getElementById("video-grid");
+    const empty = document.getElementById("empty");
+    if (videos.length === 0) {
+      empty.hidden = false;
+      empty.textContent = q
+        ? "No chapters match that search yet."
+        : "No videos analyzed yet — the crawler runs on a schedule and will populate this page automatically.";
+    } else {
+      grid.innerHTML = videos.map(Archive.cardHTML).join("");
+    }
+
+    const pills = document.getElementById("channel-pills");
+    if (!data.channels || data.channels.length === 0) {
+      document.getElementById("channels-section").hidden = true;
+    } else {
+      pills.innerHTML = data.channels.map((c) => `
+        <a class="channel-pill" href="channel.html?id=${encodeURIComponent(c.id)}">
+          ${Archive.escapeHTML(c.name)} <span class="n">${c.videoCount}</span>
+        </a>`).join("");
+    }
+  }).catch((e) => {
+    document.getElementById("empty").hidden = false;
+    document.getElementById("empty").textContent = "Could not load the archive: " + e.message;
+  });
+</script>
+</body>
+</html>

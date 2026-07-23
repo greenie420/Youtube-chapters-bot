@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Channel — Chapters</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="wordmark" href="index.html"><span class="bracket">[</span> CHAPTERS <span class="bracket">]</span></a>
+    <input id="search" type="search" placeholder="Search titles, channels, chapter topics… (press Enter)">
+    <button id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <a class="back-link" href="index.html">← All channels</a>
+  <section class="hero">
+    <p class="eyebrow">Channel</p>
+    <h1 id="channel-name">Loading…</h1>
+    <div class="stat-rail" id="stats"></div>
+  </section>
+
+  <section>
+    <h2 class="section-title">Videos analyzed</h2>
+    <div class="grid" id="video-grid"></div>
+    <p class="empty-state" id="empty" hidden></p>
+  </section>
+</main>
+
+<footer><div class="wrap">Data for this channel lives under <span id="channel-path"></span> as plain JSON.</div></footer>
+
+<script src="app.js"></script>
+<script>
+  Archive.initHeader();
+  const channelId = new URLSearchParams(location.search).get("id");
+  document.getElementById("channel-path").textContent = `/channels/${channelId}/`;
+
+  Archive.fetchIndex().then((data) => {
+    const channel = (data.channels || []).find((c) => c.id === channelId);
+    const videos = (data.videos || []).filter((v) => v.channelId === channelId);
+
+    document.getElementById("channel-name").textContent = channel ? channel.name : "Unknown channel";
+
+    const avg = videos.length
+      ? (videos.reduce((s, v) => s + (v.chapterTitles || []).length, 0) / videos.length).toFixed(1)
+      : 0;
+    Archive.renderStats(document.getElementById("stats"), {
+      videos: videos.length,
+      channels: 1,
+      comments: videos.filter((v) => v.commentPosted).length,
+      avgChapters: avg,
+    });
+
+    const grid = document.getElementById("video-grid");
+    const empty = document.getElementById("empty");
+    if (videos.length === 0) {
+      empty.hidden = false;
+      empty.textContent = "No videos analyzed for this channel yet.";
+    } else {
+      grid.innerHTML = videos.map(Archive.cardHTML).join("");
+    }
+  }).catch((e) => {
+    document.getElementById("channel-name").textContent = "Could not load channel";
+    console.error(e);
+  });
+</script>
+</body>
+</html>
