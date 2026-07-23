@@ -1,11 +1,39 @@
 {
   "channels": [
     {
-      "id": "UC_x5XG1OV2P6uZZ5FSM9Ttw",
-      "name": "Google for Developers",
+      "id": "UCsP7Bpw36J666Fct5M8u-ZA",
+      "name": "HowToCookThat",
       "enabled": true,
       "comment": false,
-      "max_videos": 3
+      "max_videos": 5
+    },
+    {
+      "id": "UCnjEbDf7sfOE32JSsgQlFlA",
+      "name": "AtlasAdamHQ",
+      "enabled": true,
+      "comment": false,
+      "max_videos": 5
+    },
+    {
+      "id": "UC-hrX73uHD1jdoZ7UEf9QxQ",
+      "name": "AncientIndy",
+      "enabled": true,
+      "comment": false,
+      "max_videos": 5
+    },
+    {
+      "id": "UCvtgHLy1ZUEeptrQCIz5Mkg",
+      "name": "ancientoriginsexplained",
+      "enabled": true,
+      "comment": false,
+      "max_videos": 5
+    },
+    {
+      "id": "UCWuZk5DbbdLb9q9R7Ibty5Q",
+      "name": "MedievalNathan",
+      "enabled": true,
+      "comment": false,
+      "max_videos": 5
     }
   ]
 }
