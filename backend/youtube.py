@@ -6,7 +6,7 @@ posting a chapters comment through OAuth.
 import os
 import re
 import requests
-from youtube_transcript_api import YouTubeTranscriptApi
+from supadata import Supadata
 
 API_BASE = "https://www.googleapis.com/youtube/v3"
 
@@ -72,39 +72,21 @@ def get_video_duration(video_id):
 
 
 def get_transcript(video_id, languages=("en",)):
-    """Prefer a human-written transcript; fall back to auto-captions.
-    Returns None (and logs why) if no transcript could be retrieved --
-    e.g. captions are disabled, or YouTube is rate-limiting this IP
-    (common on cloud hosts like GitHub Actions runners)."""
-    ytt_api = YouTubeTranscriptApi()
+    client=Supadata(api_key=os.environ["SUPADATA_KEY"])
     try:
-        transcript_list = ytt_api.list(video_id)
-    except Exception as e:
-        print(f"  transcript list failed: {e}")
-        return None
-
-    transcript = None
-    try:
-        transcript = transcript_list.find_manually_created_transcript(list(languages))
-    except Exception:
-        try:
-            transcript = transcript_list.find_transcript(list(languages))
-        except Exception as e:
-            print(f"  no transcript in {languages}: {e}")
-            return None
-
-    try:
-        fetched = transcript.fetch()
+        resp=client.youtube.transcript(video_id=video_id, mode="native")
     except Exception as e:
         print(f"  transcript fetch failed: {e}")
         return None
-
-    return {
-        "language_code": transcript.language_code,
-        "source": "youtube_auto" if transcript.is_generated else "youtube_manual",
-        "segments": [{"text": s.text, "start": s.start} for s in fetched],
-    }
-
+    chunks=getattr(resp,"content",None) or resp.get("content",[]) if isinstance(resp,dict) else []
+    lang=getattr(resp,"lang",None) or (resp.get("lang") if isinstance(resp,dict) else None)
+    segs=[]
+    for c in chunks:
+        if hasattr(c,"text"):
+            segs.append({"text":c.text,"start":getattr(c,"offset",0.0)})
+        else:
+            segs.append({"text":c.get("text",""),"start":c.get("offset",0.0)})
+    return {"language_code":lang,"source":"supadata","segments":segs}
 
 def get_access_token(client_id, client_secret, refresh_token):
     r = requests.post(
