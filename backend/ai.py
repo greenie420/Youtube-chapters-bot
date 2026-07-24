@@ -84,7 +84,7 @@ def analyze_transcript(transcript_text, duration_seconds):
     
     if not segments:
         # Fallback: use transcript_text as-is
-        model = os.environ.get("GEMINI_MODEL", "gemini-1.5-flash")
+        model = os.environ.get("GEMINI_MODEL", "gemini-3-flash-live")
         prompt = PROMPT_TEMPLATE.format(
             transcript_segments=f"[0s] {transcript_text[:5000]}"
         )
@@ -100,7 +100,7 @@ def analyze_transcript(transcript_text, duration_seconds):
     segment_text = "\n".join(segment_list[:500])
     
     # Build the full prompt
-    model = os.environ.get("GEMINI_MODEL", "gemini-1.5-flash")
+    model = os.environ.get("GEMINI_MODEL", "gemini-3-flash-live")
     prompt = PROMPT_TEMPLATE.format(transcript_segments=segment_text)
     
     # Call Gemini API
