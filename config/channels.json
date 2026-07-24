@@ -5,35 +5,35 @@
       "name": "HowToCookThat",
       "enabled": true,
       "comment": false,
-      "max_videos": 5
+      "max_videos": 1
     },
     {
       "id": "UCnjEbDf7sfOE32JSsgQlFlA",
       "name": "AtlasAdamHQ",
       "enabled": true,
       "comment": false,
-      "max_videos": 5
+      "max_videos": 0
     },
     {
       "id": "UC-hrX73uHD1jdoZ7UEf9QxQ",
       "name": "AncientIndy",
       "enabled": true,
       "comment": false,
-      "max_videos": 5
+      "max_videos": 0
     },
     {
       "id": "UCvtgHLy1ZUEeptrQCIz5Mkg",
       "name": "ancientoriginsexplained",
       "enabled": true,
       "comment": false,
-      "max_videos": 5
+      "max_videos": 0
     },
     {
       "id": "UCWuZk5DbbdLb9q9R7Ibty5Q",
       "name": "MedievalNathan",
       "enabled": true,
       "comment": false,
-      "max_videos": 5
+      "max_videos": 0
     }
   ]
 }

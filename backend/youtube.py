@@ -72,21 +72,47 @@ def get_video_duration(video_id):
 
 
 def get_transcript(video_id, languages=("en",)):
-    client=Supadata(api_key=os.environ["SUPADATA_API_KEY"])
+    """Fetch transcript using Supadata API."""
+    client = Supadata(api_key=os.environ["SUPADATA_API_KEY"])
     try:
-        resp=client.youtube.transcript(video_id=video_id, lang="en")
+        # Supadata returns a dict, not an object with attributes
+        resp = client.transcript(video_id=f"https://www.youtube.com/watch?v={video_id}")
     except Exception as e:
         print(f"  transcript fetch failed: {e}")
         return None
-    chunks=getattr(resp,"content",None) or resp.get("content",[]) if isinstance(resp,dict) else []
-    lang=getattr(resp,"lang",None) or (resp.get("lang") if isinstance(resp,dict) else None)
-    segs=[]
-    for c in chunks:
-        if hasattr(c,"text"):
-            segs.append({"text":c.text,"start":getattr(c,"offset",0.0)})
+    
+    # Handle both dict response and potential attribute-style access
+    if isinstance(resp, dict):
+        content = resp.get("content", [])
+        lang = resp.get("lang")
+    else:
+        # Fallback for if it returns an object (unlikely but defensive)
+        content = getattr(resp, "content", [])
+        lang = getattr(resp, "lang", None)
+    
+    # Parse segments from content
+    segments = []
+    for item in content:
+        if isinstance(item, dict):
+            segments.append({
+                "text": item.get("text", ""),
+                "start": item.get("offset", 0.0),
+                "duration": item.get("duration", 0)
+            })
         else:
-            segs.append({"text":c.get("text",""),"start":c.get("offset",0.0)})
-    return {"language_code":lang,"source":"supadata","segments":segs}
+            # If it's an object with attributes
+            segments.append({
+                "text": getattr(item, "text", ""),
+                "start": getattr(item, "offset", 0.0),
+                "duration": getattr(item, "duration", 0)
+            })
+    
+    return {
+        "language_code": lang or "en",
+        "source": "supadata",
+        "segments": segments
+    }
+
 
 def get_access_token(client_id, client_secret, refresh_token):
     r = requests.post(
