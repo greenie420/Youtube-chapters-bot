@@ -76,7 +76,7 @@ def get_transcript(video_id, languages=("en",)):
     client = Supadata(api_key=os.environ["SUPADATA_API_KEY"])
     try:
         # Supadata returns a dict, not an object with attributes
-        resp = client.transcript(video_id=f"https://www.youtube.com/watch?v={video_id}")
+        resp = client.transcript(url=f"https://www.youtube.com/watch?v={video_id}")
     except Exception as e:
         print(f"  transcript fetch failed: {e}")
         return None
