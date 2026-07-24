@@ -74,7 +74,7 @@ def get_video_duration(video_id):
 def get_transcript(video_id, languages=("en",)):
     client=Supadata(api_key=os.environ["SUPADATA_API_KEY"])
     try:
-        resp=client.youtube.transcript(video_id=video_id, mode="native")
+        resp=client.youtube.transcript(video_id=video_id, lang="en")
     except Exception as e:
         print(f"  transcript fetch failed: {e}")
         return None
