@@ -1,6 +1,11 @@
 {
   "updated": null,
-  "stats": { "videos": 0, "channels": 0, "comments": 0, "avgChapters": 0 },
+  "stats": {
+    "videos": 0,
+    "channels": 0,
+    "comments": 0,
+    "avgChapters": 0
+  },
   "channels": [],
   "videos": []
 }
